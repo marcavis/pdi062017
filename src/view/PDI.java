@@ -45,7 +45,6 @@ import filters.FiltersCV;
 import filters.FiltersProva1;
 import filters.NeighboringMethod;
 import filters.StructuringElement;
-import placa.FiltrosPlaca;
 
 public class PDI extends Shell {
 	private Label labelR;
@@ -435,6 +434,27 @@ public class PDI extends Shell {
 		});
 		btnHough.setText("Hough");
 		btnHough.setBounds(302, 90, 109, 25);
+		
+		Button btnHough2 = new Button(composite_12, SWT.NONE);
+		btnHough2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					BufferedImage preTratamento = Filters.remocaoRuido(Filters.cinza(ImageIO.read(new File(pathImg1))),
+							NeighboringMethod.SQUARE, AveragingMethod.MEDIAN);;
+					ImageIO.write(preTratamento, "bmp", new File("temp/_placa1.bmp"));
+					FiltersCV.canny("temp/_placa1.bmp");
+					FiltersCV.hough("temp/_canny.bmp");
+					pathImg3 = "temp/_hough.bmp";
+					image3 = new Image(null, pathImg3);
+					carregaImagem(label3, image3);
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
+			}
+		});
+		btnHough2.setText("Pré-processar + Hough");
+		btnHough2.setBounds(442, 90, 209, 25);
 		
 		CTabItem tbtmTonsDecinza = new CTabItem(tabFolder, SWT.NONE);
 		tbtmTonsDecinza.setText("Tons de &Cinza");

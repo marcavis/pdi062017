@@ -9,6 +9,8 @@ import javax.imageio.ImageIO;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -62,14 +64,20 @@ public class FiltersCV {
 	
 	public static void hough(String pathImagem) {
 		Mat imagem = Imgcodecs.imread(pathImagem, 0);
-		//Imgproc.HoughCircles(imagem, circles, method, dp, minDist);
 		Mat circles = new Mat();
-		int minRadius = 130;
+		int minRadius = 50;
 		int maxRadius = 900;
-		Imgproc.HoughCircles(imagem, circles, Imgproc.CV_HOUGH_GRADIENT, 1, minRadius, 120, 10, minRadius, maxRadius);
-		//String wtf = circles.get(0, 0);
-		//System.out.println(wtf);
-		System.out.println("dsasasasasasssssssssssss");
+		//Imgproc.HoughCircles(imagem, circles, Imgproc.CV_HOUGH_GRADIENT, 1, minRadius, 120, 10, minRadius, maxRadius);
+		Imgproc.HoughCircles(imagem, circles, Imgproc.CV_HOUGH_GRADIENT, 1, minRadius*3, 180, 80, minRadius, maxRadius);
+		Point pt = new Point();
+		for (int i = 0; i < circles.cols(); i++){
+			double data[] = circles.get(0, i);
+			pt.x = data[0];
+			pt.y = data[1];
+			double rho = data[2];
+			Imgproc.circle(imagem, pt, (int)rho, new Scalar(200, 200, 200), 5);
+		}
+		System.out.println(circles.size());
 		Imgcodecs.imwrite("temp/_hough.bmp", imagem);
 	}
 }
