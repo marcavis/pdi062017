@@ -474,7 +474,7 @@ public class PDI extends Shell {
 				}
 			}
 		});
-		btnHough3.setText("Pré-processar + Hough + Crop");
+		btnHough3.setText("Pré-processar + Hough + Isolar");
 		btnHough3.setBounds(442, 90, 269, 25);
 		
 		CTabItem tbtmTonsDecinza = new CTabItem(tabFolder, SWT.NONE);
