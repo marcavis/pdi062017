@@ -1,6 +1,7 @@
 package filters;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 
@@ -79,5 +80,49 @@ public class FiltersCV {
 		}
 		System.out.println(circles.size());
 		Imgcodecs.imwrite("temp/_hough.bmp", imagem);
+	}
+	
+	public static void hough2(String pathImagem) throws IOException {
+		Mat imagem = Imgcodecs.imread(pathImagem, 0);
+		Mat circles = new Mat();
+		int minRadius = 50;
+		int maxRadius = 900;
+		//Imgproc.HoughCircles(imagem, circles, Imgproc.CV_HOUGH_GRADIENT, 1, minRadius, 120, 10, minRadius, maxRadius);
+		Imgproc.HoughCircles(imagem, circles, Imgproc.CV_HOUGH_GRADIENT, 1, minRadius*3, 180, 80, minRadius, maxRadius);
+		
+//		Point pt = new Point();
+//		for (int i = 0; i < circles.cols(); i++){
+//			double data[] = circles.get(0, i);
+//			pt.x = data[0];
+//			pt.y = data[1];
+//			double rho = data[2];
+//			Imgproc.circle(imagem, pt, (int)rho, new Scalar(200, 200, 200), 5);
+//		}
+//		System.out.println(circles.size());
+		Imgcodecs.imwrite("temp/_hough.bmp", imagem);
+		BufferedImage result = ImageIO.read(new File("temp/_hough.bmp"));
+		
+		double placa[] = circles.get(0, 0);
+		WritableRaster raster = result.getRaster();
+		for (int i = 1; i < result.getWidth()-1; i++) {
+			for (int j = 1; j < result.getHeight()-1; j++) {
+				//limpar tudo que não esteja dentro do círculo
+				if(!dentroDoCirculo(placa, i, j)) {
+					raster.setPixel(i, j, new int[] {0,0,0,0});
+				}
+			}
+		}
+		try {
+			result.setData(raster);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		ImageIO.write(result, "bmp", new File("temp/_hough2.bmp"));
+	}
+	
+	public static boolean dentroDoCirculo(double[] circulo, int x, int y) {
+		double primeiroTermo = (x - circulo[0]) * (x - circulo[0]);
+		double segundoTermo = (y - circulo[1]) * (y - circulo[1]);
+		return (primeiroTermo + segundoTermo) < (circulo[2] * circulo[2]);
 	}
 }

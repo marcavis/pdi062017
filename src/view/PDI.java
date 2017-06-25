@@ -454,7 +454,28 @@ public class PDI extends Shell {
 			}
 		});
 		btnHough2.setText("Pré-processar + Hough");
-		btnHough2.setBounds(442, 90, 209, 25);
+		btnHough2.setBounds(442, 10, 269, 25);
+		
+		Button btnHough3 = new Button(composite_12, SWT.NONE);
+		btnHough3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					BufferedImage preTratamento = Filters.remocaoRuido(Filters.cinza(ImageIO.read(new File(pathImg1))),
+							NeighboringMethod.SQUARE, AveragingMethod.MEDIAN);;
+					ImageIO.write(preTratamento, "bmp", new File("temp/_placa1.bmp"));
+					FiltersCV.canny("temp/_placa1.bmp");
+					FiltersCV.hough2("temp/_canny.bmp");
+					pathImg3 = "temp/_hough2.bmp";
+					image3 = new Image(null, pathImg3);
+					carregaImagem(label3, image3);
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
+			}
+		});
+		btnHough3.setText("Pré-processar + Hough + Crop");
+		btnHough3.setBounds(442, 90, 269, 25);
 		
 		CTabItem tbtmTonsDecinza = new CTabItem(tabFolder, SWT.NONE);
 		tbtmTonsDecinza.setText("Tons de &Cinza");
