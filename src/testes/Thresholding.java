@@ -18,8 +18,7 @@ public class Thresholding {
          destination = source;
          //Imgproc.threshold(source,destination,127,255,Imgproc.THRESH_TOZERO);
          Imgproc.threshold(source, destination, 127, 255, Imgproc.THRESH_BINARY);
-         //Imgproc.threshold(src, dst, thresh, maxval, type)
-         Imgcodecs.imwrite("img/ThreshZeros.jpg", destination);
+         Imgcodecs.imwrite("img/ThreshZero.jpg", destination);
          
       }catch (Exception e) {
          System.out.println("error: " + e.getMessage());

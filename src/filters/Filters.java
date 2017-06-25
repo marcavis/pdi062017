@@ -346,6 +346,10 @@ public class Filters {
 		return newImg;
 	}
 	
+	public static BufferedImage adicionar(BufferedImage img1, BufferedImage img2) {
+		return adicionar(img1, 50, img2, 50);
+	}
+	
 	public static BufferedImage adicionar(BufferedImage img1, int proporcao1, BufferedImage img2, int proporcao2) {
 		WritableRaster raster1 = img1.getRaster();
 		WritableRaster raster2 = img2.getRaster();

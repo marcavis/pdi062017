@@ -41,8 +41,11 @@ import org.opencv.imgproc.Imgproc;
 
 import filters.AveragingMethod;
 import filters.Filters;
+import filters.FiltersCV;
+import filters.FiltersProva1;
 import filters.NeighboringMethod;
 import filters.StructuringElement;
+import placa.FiltrosPlaca;
 
 public class PDI extends Shell {
 	private Label labelR;
@@ -94,6 +97,12 @@ public class PDI extends Shell {
 	private Button btnAte0;
 	private Button btnAte0Invertida;
 	private Button btnTruncada;
+	private Label lblRespostaRet;
+	private Spinner spinnerQuadA;
+	private Spinner spinnerQuadB;
+	private Button btnSobel;
+	private Button btnLaplace;
+	private Button btnCanny;
 
 	/**
 	 * Launch the application.
@@ -249,6 +258,7 @@ public class PDI extends Shell {
 		btnAbreImagem1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
 				pathImg1 = fileDialog.open();
 				abreImagem(1);
 			}
@@ -365,6 +375,66 @@ public class PDI extends Shell {
 		tabFolder.setTabPosition(SWT.BOTTOM);
 		tabFolder.setBounds(106, 10, 1016, 150);
 		tabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		
+		CTabItem tbtmPlacas = new CTabItem(tabFolder, SWT.NONE);
+		tbtmPlacas.setText("Placas");
+		
+		Composite composite_12 = new Composite(tabFolder, SWT.NONE);
+		tbtmPlacas.setControl(composite_12);
+		
+		Button btnProcessarImagem = new Button(composite_12, SWT.NONE);
+		btnProcessarImagem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					FiltersCV.canny(pathImg1);
+					pathImg3 = "temp/_canny.bmp";
+					image3 = new Image(null, pathImg3);
+					carregaImagem(label3, image3);
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
+			}
+		});
+		btnProcessarImagem.setBounds(27, 10, 109, 25);
+		btnProcessarImagem.setText("Processar Imagem");
+		
+		Button btnProcessarImagemCom = new Button(composite_12, SWT.NONE);
+		btnProcessarImagemCom.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					BufferedImage preTratamento = Filters.remocaoRuido(Filters.cinza(ImageIO.read(new File(pathImg1))),
+							NeighboringMethod.SQUARE, AveragingMethod.MEDIAN);;
+					ImageIO.write(preTratamento, "bmp", new File("temp/_placa1.bmp"));
+					FiltersCV.canny("temp/_placa1.bmp");
+					pathImg3 = "temp/_canny.bmp";
+					image3 = new Image(null, pathImg3);
+					carregaImagem(label3, image3);
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
+			}
+		});
+		btnProcessarImagemCom.setText("Processar Imagem com Pré-processamento");
+		btnProcessarImagemCom.setBounds(27, 90, 269, 25);
+		
+		Button btnHough = new Button(composite_12, SWT.NONE);
+		btnHough.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					FiltersCV.hough(pathImg1);
+					pathImg3 = "temp/_hough.bmp";
+					image3 = new Image(null, pathImg3);
+					carregaImagem(label3, image3);
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
+			}
+		});
+		btnHough.setText("Hough");
+		btnHough.setBounds(302, 90, 109, 25);
 		
 		CTabItem tbtmTonsDecinza = new CTabItem(tabFolder, SWT.NONE);
 		tbtmTonsDecinza.setText("Tons de &Cinza");
@@ -1025,26 +1095,30 @@ public class PDI extends Shell {
 		btnSegmentacaoCV.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int tipo = 0;
-				if(btnTruncada.getSelection())
-					tipo = Imgproc.THRESH_TRUNC;
-				if(btnAte0.getSelection())
-					tipo = Imgproc.THRESH_TOZERO;
-				if(btnAte0Invertida.getSelection())
-					tipo = Imgproc.THRESH_TOZERO_INV;
-				if(btnBinaria.getSelection())
-					tipo = Imgproc.THRESH_BINARY;
-				if(btnBinariaInvertida.getSelection())
-					tipo = Imgproc.THRESH_BINARY_INV;
-				Mat origem = Imgcodecs.imread(pathImg1,  Imgcodecs.CV_LOAD_IMAGE_COLOR);
-				Mat segmentada = new Mat(origem.rows(), origem.cols(), origem.type());
-				segmentada = origem;
-				Imgproc.threshold(origem, segmentada, 127, 255, tipo);
-				pathImg3 = "temp/_segmentadaCV.bmp";
-				Imgcodecs.imwrite(pathImg3, segmentada);
-								
-				image3 = new Image(null, pathImg3);
-				carregaImagem(label3, image3);
+				try {
+					int tipo = 0;
+					if(btnTruncada.getSelection())
+						tipo = Imgproc.THRESH_TRUNC;
+					if(btnAte0.getSelection())
+						tipo = Imgproc.THRESH_TOZERO;
+					if(btnAte0Invertida.getSelection())
+						tipo = Imgproc.THRESH_TOZERO_INV;
+					if(btnBinaria.getSelection())
+						tipo = Imgproc.THRESH_BINARY;
+					if(btnBinariaInvertida.getSelection())
+						tipo = Imgproc.THRESH_BINARY_INV;
+					Mat origem = Imgcodecs.imread(pathImg1,  Imgcodecs.CV_LOAD_IMAGE_COLOR);
+					Mat segmentada = new Mat(origem.rows(), origem.cols(), origem.type());
+					segmentada = origem;
+					Imgproc.threshold(origem, segmentada, 127, 255, tipo);
+					pathImg3 = "temp/_segmentadaCV.bmp";
+					Imgcodecs.imwrite(pathImg3, segmentada);
+									
+					image3 = new Image(null, pathImg3);
+					carregaImagem(label3, image3);
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
 			}
 		});
 		btnSegmentacaoCV.setText("Segmentação OpenCV");
@@ -1085,6 +1159,175 @@ public class PDI extends Shell {
 		btnTruncada.setText("Truncada");
 		btnTruncada.setBounds(10, 35, 90, 16);
 		
+		CTabItem tbtmbordas = new CTabItem(tabFolder, SWT.NONE);
+		tbtmbordas.setText("&Bordas");
+		
+		Composite composite_11 = new Composite(tabFolder, SWT.NONE);
+		tbtmbordas.setControl(composite_11);
+		
+		Button btnBordas = new Button(composite_11, SWT.NONE);
+		btnBordas.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					Mat origem = Imgcodecs.imread(pathImg1,  Imgcodecs.CV_LOAD_IMAGE_COLOR);
+					BufferedImage resultado;
+					String metodo = "";
+					if (btnSobel.getSelection()) {
+						resultado = FiltersCV.sobel(origem);
+						metodo = "sobel";
+					} else if (btnLaplace.getSelection()) {
+						resultado = FiltersCV.laplace(origem);
+						metodo = "laplace";
+					} else {
+						//deixa pra lá
+						resultado = FiltersCV.sobel(origem);
+						metodo = "canny";
+					}
+					pathImg3 = "temp/_" + metodo + ".bmp";
+					ImageIO.write(resultado, "bmp", new File(pathImg3));
+					image3 = new Image(null, pathImg3);
+					carregaImagem(label3, image3);
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
+			}
+		});
+		btnBordas.setBounds(10, 10, 116, 25);
+		btnBordas.setText("Detecção de Bordas");
+		
+		Group grpMtodo_1 = new Group(composite_11, SWT.NONE);
+		grpMtodo_1.setText("Método");
+		grpMtodo_1.setBounds(132, 10, 103, 105);
+		
+		btnSobel = new Button(grpMtodo_1, SWT.RADIO);
+		btnSobel.setText("Sobel");
+		btnSobel.setBounds(10, 35, 90, 16);
+		
+		btnLaplace = new Button(grpMtodo_1, SWT.RADIO);
+		btnLaplace.setText("Laplace");
+		btnLaplace.setBounds(10, 57, 90, 16);
+		
+		btnCanny = new Button(grpMtodo_1, SWT.RADIO);
+		btnCanny.setSelection(true);
+		btnCanny.setText("Canny");
+		btnCanny.setBounds(10, 79, 90, 16);
+		
+		CTabItem tbtmProva1 = new CTabItem(tabFolder, SWT.NONE);
+		tbtmProva1.setText("Prova &1");
+		
+		Composite composite_10 = new Composite(tabFolder, SWT.NONE);
+		tbtmProva1.setControl(composite_10);
+		
+		Button btnTestaRetangulo = new Button(composite_10, SWT.NONE);
+		btnTestaRetangulo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					boolean resposta = FiltersProva1.testaRetangulo(ImageIO.read(new File(pathImg1)));
+					if(resposta) {
+						lblRespostaRet.setText("FECHADO!");
+					} else {
+						lblRespostaRet.setText("ABERTO!");
+					}
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
+			}
+		});
+		btnTestaRetangulo.setBounds(653, 10, 97, 25);
+		btnTestaRetangulo.setText("Testa Retângulo");
+		
+		Label lblResposta = new Label(composite_10, SWT.NONE);
+		lblResposta.setBounds(653, 41, 97, 15);
+		lblResposta.setText("Resposta:");
+		
+		lblRespostaRet = new Label(composite_10, SWT.NONE);
+		lblRespostaRet.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.BOLD));
+		lblRespostaRet.setAlignment(SWT.CENTER);
+		lblRespostaRet.setBounds(653, 63, 97, 31);
+		
+		Button btnEqualizarNaDiagonal = new Button(composite_10, SWT.NONE);
+		btnEqualizarNaDiagonal.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					BufferedImage equalizadaDiagonal = FiltersProva1.equalizarDiagonal(ImageIO.read(new File(pathImg1)));
+					pathImg3 = "temp/_equalizadaDiagonal.bmp";
+					ImageIO.write(equalizadaDiagonal, "bmp", new File(pathImg3));
+					image3 = new Image(null, pathImg3);
+					carregaImagem(label3, image3);
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
+			}
+		});
+		btnEqualizarNaDiagonal.setBounds(416, 10, 125, 25);
+		btnEqualizarNaDiagonal.setText("Equalizar na Diagonal");
+		
+		Button btnRotacaoEmQuadrantes = new Button(composite_10, SWT.NONE);
+		btnRotacaoEmQuadrantes.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try {
+					BufferedImage rotacionada = FiltersProva1.rotacionarEmQuadrantes(ImageIO.read(new File(pathImg1)),
+							spinnerQuadA.getSelection(), spinnerQuadB.getSelection());
+					pathImg3 = "temp/_rotacionadaQuad.bmp";
+					ImageIO.write(rotacionada, "bmp", new File(pathImg3));
+					image3 = new Image(null, pathImg3);
+					carregaImagem(label3, image3);
+				} catch (Exception f) {
+					f.printStackTrace();
+				}
+			}
+		});
+		btnRotacaoEmQuadrantes.setText("Rotação em Quadrantes");
+		btnRotacaoEmQuadrantes.setBounds(10, 10, 139, 25);
+		
+		Group grpQuadrantesARotacionar = new Group(composite_10, SWT.NONE);
+		grpQuadrantesARotacionar.setText("Quadrantes a Rotacionar");
+		grpQuadrantesARotacionar.setBounds(10, 63, 219, 51);
+		
+		Label lblA = new Label(grpQuadrantesARotacionar, SWT.NONE);
+		lblA.setText("A:");
+		lblA.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+		lblA.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.BOLD));
+		lblA.setBounds(10, 19, 19, 21);
+		
+		Label lblB_1 = new Label(grpQuadrantesARotacionar, SWT.NONE);
+		lblB_1.setText("B:");
+		lblB_1.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+		lblB_1.setFont(SWTResourceManager.getFont("Segoe UI", 12, SWT.BOLD));
+		lblB_1.setBounds(107, 19, 19, 21);
+		
+		spinnerQuadA = new Spinner(grpQuadrantesARotacionar, SWT.BORDER);
+		spinnerQuadA.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(spinnerQuadA.getSelection() == spinnerQuadB.getSelection())
+					spinnerQuadB.setSelection((spinnerQuadA.getSelection() % 4) + 1);
+			}
+		});
+		spinnerQuadA.setPageIncrement(1);
+		spinnerQuadA.setMaximum(4);
+		spinnerQuadA.setMinimum(1);
+		spinnerQuadA.setSelection(1);
+		spinnerQuadA.setBounds(35, 19, 47, 22);
+		
+		spinnerQuadB = new Spinner(grpQuadrantesARotacionar, SWT.BORDER);
+		spinnerQuadB.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(spinnerQuadA.getSelection() == spinnerQuadB.getSelection())
+					spinnerQuadA.setSelection((spinnerQuadB.getSelection() % 4) + 1);
+			}
+		});
+		spinnerQuadB.setPageIncrement(1);
+		spinnerQuadB.setMaximum(4);
+		spinnerQuadB.setMinimum(1);
+		spinnerQuadB.setSelection(2);
+		spinnerQuadB.setBounds(132, 18, 47, 22);
+		
 		createContents();
 		criaFileDialog();
 	}
@@ -1116,7 +1359,7 @@ public class PDI extends Shell {
 	private void criaFileDialog(){
 		fileDialog = new FileDialog(this, SWT.OPEN);
 		fileDialog.setText("Abrir");
-		fileDialog.setFilterPath("imgs");
+		fileDialog.setFilterPath("placas");
 		String[] filterExt = {"*.*", "*.png", "*.jpg", "*.bmp"};
 		fileDialog.setFilterExtensions(filterExt);
 	}
